@@ -32,11 +32,12 @@ void loop() {
 
   takenTime = pulseIn(echo, HIGH);
   distance = takenTime / 58;
-
+  lcd.print(distance);
+  
   if (distance > 0 && distance <= 50)
-    lcd.print(distance);
+    lcd.display();
   else
-    lcd.clear();
+    lcd.noDisplay();
 
   delay(1000);
 }

@@ -1,35 +1,48 @@
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiServer.h>
-#include <WiFiUdp.h>
+#include <ThingSpeak.h>
+#include <ESP8266WiFi.h>
+#include "DHT.h"
+#define DHT11_PIN 2 
+#define DHTTYPE DHT11
+
+//dht
+DHT dht(DHT11_PIN, DHTTYPE);
 
 //server
-const string serverAddress = " ";
+String server = "api.thingspeak.com";
 unsigned long channelNumber = 1;
-const char* writeAPIKey = " ";
+const char* writeAPIKey = "JH442P18M4DOWYEI";
+String readAPIKey = "REG5C56EQ2XIF2NL";
 
 //password + ssid
-const string ssid = " ";
-const string password = " ";
+char* ssid = "iPhone (Eliza)";
+char* password = "";
 
-//time things
-unsigned long lastTime = 0;
-unsigned long timerDelay = 0;
+//wifi client
+WiFiClient http;
 
 void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  Serial.println("Connecting to");
+  Serial.print(ssid);
   WiFi.begin(ssid, password);
-  while(WiFi.status() != WL_CONNECTED) { 
+  while(WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");  
+    Serial.print(".");
   }
-  Serial.println("Connected to WIFI network with IP address: ");
-  Serial.print(WiFi.localIP());
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+  ThingSpeak.begin(http);
 }
 
 void loop() {
-  WiFiClient wifi;
-  HttpClient http;
-
-  http.begin(wifi, server);
-  http.get();
+  float temperature = dht.readTemperature();
+  if (isnan(temperature)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+    }
+    long t = long(temperature);
+  int x = ThingSpeak.writeField(channelNumber, 1, temperature, writeAPIKey); 
+  delay(20000);
 }

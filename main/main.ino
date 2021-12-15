@@ -14,6 +14,7 @@ const uint8_t echo = 11;
 const uint8_t trig = 12;
 
 void setup() {
+  Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.setCursor(0, 0);
   pinMode(trig, OUTPUT);
@@ -22,7 +23,7 @@ void setup() {
 
 void loop() {
   lcd.clear();
-  lcd.print("Temperature: ");
+  lcd.print("Temp: ");
   long distance = 0L, takenTime = 0L;
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
@@ -32,12 +33,14 @@ void loop() {
 
   takenTime = pulseIn(echo, HIGH);
   distance = takenTime / 58;
-  lcd.print(distance);
-  
+  //lcd.print(distance);
+
+  float temperature = Serial.readString().toFloat();
+  lcd.print(temperature);
   if (distance > 0 && distance <= 50)
     lcd.display();
   else
     lcd.noDisplay();
 
-  delay(1000);
+  delay(10000);
 }
